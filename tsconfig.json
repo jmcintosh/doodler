@@ -1,5 +1,6 @@
 {
     "files": [
+        "ts/doodler.ts",
         "ts/main.ts"
     ],
     "compilerOptions": {
