@@ -12,4 +12,5 @@ body {
     top: 50%;
     margin-left: -400px;
     margin-top: -300px;
+    cursor: default;
 }
