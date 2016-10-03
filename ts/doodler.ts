@@ -1,98 +1,118 @@
-//import HTMLCanvasElement from
 
 export class Doodler {
     private _canvas: HTMLCanvasElement
     private _ctx: CanvasRenderingContext2D
 
-    private _bound_draw: EventListenerObject
-    private _bound_start_drawing: EventListenerObject
-    private _bound_stop_drawing: EventListenerObject
+    private _bound_draw: EventListenerObject[] = []
+    private _bound_start_drawing: EventListenerObject = null
+    private _bound_stop_drawing: EventListenerObject = null
 
     private saved_image: string
 
-    constructor( id: string, parent: string, width: number, height: number) {
+    constructor( id: string, parent: string, width: number, height: number ) {
         this._canvas = document.createElement("canvas")
         this._canvas.id = id
         this._canvas.width = width
         this._canvas.height = height
         document.getElementById(parent).appendChild(this._canvas)
-
         this._ctx = this._canvas.getContext("2d")
 
+        // disable the context menu
+        this._canvas.oncontextmenu = function(){ return false }
+
         this.start_draw_listeners()
-        this.set_line_weight(2)
+        this.set_line_width(1)
     }
 
-    test_circle() {
+    private test_circle() {
         this._ctx.beginPath()
         this._ctx.arc(95,50,40,0,2*Math.PI)
         this._ctx.stroke()
     } 
 
-    start_draw_listeners(){
+    private start_draw_listeners(){
         console.log("Doodler:start_draw_listeners")
         // this._canvas.addEventListener()
-        this._bound_start_drawing = this.start_drawing.bind(this)
-        this._bound_stop_drawing = this.stop_drawing.bind(this)
 
-        this._canvas.addEventListener("mousedown", this._bound_start_drawing, false)
-        this._canvas.addEventListener("mouseup", this._bound_stop_drawing, false)
+        if (!this._bound_start_drawing) {
+            this._bound_start_drawing = this.start_drawing.bind(this)
+            this._canvas.addEventListener("mousedown", this._bound_start_drawing, false)
+        }
+
+        if (!this._bound_stop_drawing) {
+            this._bound_stop_drawing = this.stop_drawing.bind(this)
+            this._canvas.addEventListener("mouseup", this._bound_stop_drawing, false)
+        }
     }
 
-    stop_draw_listeners(){
+    private stop_draw_listeners(){
         console.log("Doodler:stop_draw_listeners")
-        this._canvas.removeEventListener("mousedown", this._bound_start_drawing, false)
-        this._canvas.removeEventListener("mouseup", this._bound_stop_drawing, false)
+        if (this._bound_start_drawing) {
+            this._canvas.removeEventListener("mousedown", this._bound_start_drawing, false)
+            this._bound_start_drawing = null
+        }
+        
+        if (this._bound_stop_drawing){
+            this._canvas.removeEventListener("mouseup", this._bound_stop_drawing, false)
+            this._bound_stop_drawing = null
+        }
     }
 
-    set_line_weight(width: number){
+    private set_line_width(width: number){
         this._ctx.lineWidth = width
     }
 
-    start_drawing(evt: MouseEvent){
+    private start_drawing(evt: MouseEvent){
         // console.group("Doodler::start_drawing")
         // console.log(evt)
         // console.log(evt.offsetX, evt.offsetY)
         // console.groupEnd()
-        this._bound_draw = this.draw.bind(this)
-        this._canvas.addEventListener("mousemove", this._bound_draw, false)
+        if(evt.button == 0){
+            let bound_draw = this.draw.bind(this)
+            this._bound_draw.push(bound_draw)
+            this._canvas.addEventListener("mousemove", bound_draw, false)
 
-        let x = evt.offsetX, y = evt.offsetY
-        
-        this._ctx.beginPath()
-        this._ctx.moveTo(x,y)
-        let width = this._ctx.lineWidth
-        x = x - width/2
-        y = y - width/2
-        this._ctx.fillRect( x, y, width, width ); // adds a single pixel
+            let x = evt.offsetX, y = evt.offsetY
+            
+            this._ctx.beginPath()
+            this._ctx.moveTo(x,y)
+            let width = this._ctx.lineWidth
+            x = x - Math.floor(width/2)
+            y = y - Math.floor(width/2)
+            this._ctx.fillRect( x, y, width, width ); // adds a single pixel
+        }
     }
 
-    draw(evt: MouseEvent){
+    private draw(evt: MouseEvent){
         // console.group("Doodler::draw")
         // console.log(evt.offsetX, evt.offsetY)
         // console.groupEnd()
-
-        let x = evt.offsetX, y = evt.offsetY
-        this._ctx.lineTo(x,y)
-        this._ctx.stroke()
+        if(evt.button == 0){
+            let x = evt.offsetX, y = evt.offsetY
+            this._ctx.lineTo(x,y)
+            this._ctx.stroke()
+        }
 
     }
 
-    stop_drawing(evt: MouseEvent){
+    private stop_drawing(evt: MouseEvent){
         // console.group("Doodler::stop_drawing")
         // console.log(evt.offsetX, evt.offsetY)
         // console.groupEnd()
-        this._canvas.removeEventListener("mousemove", this._bound_draw, false)
-        this._canvas.removeEventListener
+        if(evt.button == 0){
+            for(let bound_draw of this._bound_draw){
+                this._canvas.removeEventListener("mousemove", bound_draw, false)
+            }
 
-        let x = evt.offsetX, y = evt.offsetY
-        this._ctx.lineTo(x,y)
-        let width = this._ctx.lineWidth
-        x = x - width/2
-        y = y - width/2
-        this._ctx.fillRect( x, y, width, width ); // adds a single pixel
-        
-        this._ctx.stroke()
+            let x = evt.offsetX, y = evt.offsetY
+            this._ctx.lineTo(x,y)
+            let width = this._ctx.lineWidth
+            x = x - Math.floor(width/2)
+            y = y - Math.floor(width/2)
+            this._ctx.fillRect( x, y, width, width ); // adds a single pixel
+            
+            this._ctx.stroke()
+        }
 
     }
 

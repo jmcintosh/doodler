@@ -1,6 +1,7 @@
 {
     "files": [
         "ts/doodler.ts",
+        "ts/color_picker.ts",
         "ts/main.ts"
     ],
     "compilerOptions": {

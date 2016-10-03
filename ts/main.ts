@@ -1,7 +1,9 @@
 import {Doodler} from "./doodler"
+import {ColorPicker} from "./color_picker"
 
 let doodler = new Doodler('doodler-canvas',"doodler-container", 800, 600)
 
+let color_picker = new ColorPicker('color-picker','color-picker-container', 40)
 
 // hook up event buttons
 let clear_btn = document.getElementById("clear")
