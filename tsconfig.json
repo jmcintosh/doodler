@@ -1,8 +1,6 @@
 {
     "files": [
-        "ts/doodler.ts",
-        "ts/color_picker.ts",
-        "ts/main.ts"
+        "ts/*"
     ],
     "compilerOptions": {
         "noImplicitAny": true

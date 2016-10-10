@@ -1,18 +1,22 @@
-export class ColorPicker{
+import {HSL} from "./hsl"
+import {iColorSource} from "./iColorSource"
+
+export class ColorPicker implements iColorSource{
     private _canvas: HTMLCanvasElement
     private _ctx: CanvasRenderingContext2D
 
-    private _preview: HTMLSpanElement
+    private _l_slider: HTMLInputElement
+
     private _primary_preview: HTMLDivElement
     private _secondary_preview: HTMLDivElement
 
-    readonly primary_hsl: hsl = null
-    readonly secondary_hsl: hsl = null
+    private primary_hsl: HSL = null
+    private secondary_hsl: HSL = null
 
-    constructor( id: string, parent: string, height: number ){
+    constructor( id: string, parent: string, width: number, height: number ){
         this._canvas = document.createElement("canvas")
         this._canvas.id = id
-        this._canvas.width = 360
+        this._canvas.width = width
         this._canvas.height = height
         this._canvas.style.display = "inline"
         let parent_elmt = document.getElementById(parent)
@@ -22,96 +26,98 @@ export class ColorPicker{
         // disable the context menu
         this._canvas.oncontextmenu = function(){ return false }
 
-        this._primary_preview = document.createElement("div")
-        this._primary_preview.style.height = height/2 + "px"
-        this._primary_preview.style.width = height/2 + "px"
-        this._secondary_preview = document.createElement("div")
-        this._secondary_preview.style.height = height/2 + "px"
-        this._secondary_preview.style.width = height/2 + "px"
+
+        this._l_slider = document.createElement("input")
+        this._l_slider.setAttribute("type", "range")
+        this._l_slider.min = "0"
+        this._l_slider.max = "100"
+        this._l_slider.value = "50"
 
         // add color gradient
-        for (let i = 0; i < 360; i++) {
-            this._ctx.fillStyle = "hsl(" + i.toString() + ",100%,50%)"
-            this._ctx.fillRect(i,0,1,height)
-        }
+        this.draw_gradient()
 
-        this.primary_hsl = new hsl(0)
-        this.secondary_hsl = new hsl(180)
+        this.primary_hsl = new HSL(0)
+        this.secondary_hsl = new HSL(180)
 
         this._primary_preview = document.createElement("div")
         this._primary_preview.style.height = height/2 + "px"
         this._primary_preview.style.width = height/2 + "px"
         this._primary_preview.style.backgroundColor = this.primary_hsl.as_string()
-
+        this._primary_preview.style.display = "inline-block"
+        this._primary_preview.style.position = "relative"
+        this._primary_preview.style.bottom = height/2 + "px"
 
         this._secondary_preview = document.createElement("div")
         this._secondary_preview.style.height = height/2 + "px"
         this._secondary_preview.style.width = height/2 + "px"
         this._secondary_preview.style.backgroundColor = this.secondary_hsl.as_string()
+        this._secondary_preview.style.display = "inline-block"
+        this._secondary_preview.style.position = "relative"
+        this._secondary_preview.style.right = height/2 + "px"
 
-        this._preview = document.createElement("span")
 
-        this._preview.appendChild(this._primary_preview)
-        this._preview.appendChild(this._secondary_preview)
-
-        parent_elmt.appendChild(this._preview)
+        parent_elmt.appendChild(this._primary_preview)
+        parent_elmt.appendChild(this._secondary_preview)
+        parent_elmt.appendChild(this._l_slider)
         parent_elmt.style.display = "inline"
 
+
         this.init_event_listeners()
+    }
+
+    get_primary_hsl(){
+        return this.primary_hsl
+    }
+
+    get_secondary_hsl(){
+        return this.secondary_hsl
     }
 
     init_event_listeners(){
         console.log("ColorPicker::init")
         this._canvas.addEventListener("mousedown",this.pick_color.bind(this))
+        this._l_slider.addEventListener("change",this.draw_gradient.bind(this))
+    }
+
+    draw_gradient(){
+        let width = this._canvas.width
+        let height = this._canvas.height
+        let l = this._l_slider.value
+
+        for (let i = 0; i < width; i++) {
+            for(let j = 0; j < height; j++){
+                let h = this.normalize_h(i)
+                let s = this.normalize_s(j)
+                this._ctx.fillStyle = "hsl(" + h + "," + s + "%," + l +"%)"
+                this._ctx.fillRect(i,j,1,1)
+            }
+        }
     }
 
     pick_color(evt: MouseEvent){
         console.log("ColorPicker::pick_color",evt)
 
+        let h = this.normalize_h(evt.offsetX)
+        let s = this.normalize_s(evt.offsetY)
+        let l = Number(this._l_slider.value)
+
         if(evt.button == 0 ){ // set primary_hsl
-            this.primary_hsl.set(evt.offsetX)
+            this.primary_hsl.set(h,s,l)
             this._primary_preview.style.backgroundColor = this.primary_hsl.as_string()
         } else if( evt.button == 2 ){
-            this.secondary_hsl.set(evt.offsetX)
+            this.secondary_hsl.set(h,s,l)
             this._secondary_preview.style.backgroundColor = this.secondary_hsl.as_string()
         }
 
 
     }
 
-}
-
-class hsl {
-    public h: number
-    public s: number
-    public l: number
-
-    constructor( h: number, s = 100, l = 50 ){
-        this.set(h,s,l)
+    normalize_h(h: number){
+        return Math.floor(h * 360/this._canvas.width)
     }
 
-    set( h: number, s = 100, l = 50 ){
-        console.log(h)
-        this.h = h % 360
-
-        if ( s < 0 ) { 
-            this.s = 0
-        } else if (s > 100){ 
-            this.s = 100
-        } else{
-            this.s = s
-        }
-
-        if ( l < 0 ) { 
-            this.l = 0
-        } else if (l > 100){ 
-            this.l = 100
-        } else{
-            this.l = l
-        }
+    normalize_s(s: number){
+        return Math.floor(100-(s * 100/this._canvas.height))
     }
 
-    as_string(){
-        return "hsl("+this.h+", "+this.s+"%, "+this.l+"%)"
-    }
 }
