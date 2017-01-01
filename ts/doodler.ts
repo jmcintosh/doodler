@@ -1,5 +1,7 @@
 import {iColorSource} from "./iColorSource"
 
+// import * as lang from "dojo/_base/lang"
+
 export class Doodler {
     private _canvas: HTMLCanvasElement
     private _ctx: CanvasRenderingContext2D
@@ -27,6 +29,9 @@ export class Doodler {
 
         this.start_draw_listeners()
         this.set_line_width(4)
+
+        //let a = lang.clone({test: 1})
+        // console.debug(a)
     }
 
     private test_circle() {
@@ -76,13 +81,12 @@ export class Doodler {
             let x = evt.offsetX, y = evt.offsetY
             let color = this._color_source.get_primary_hsl().as_string()
             this._ctx.strokeStyle = color
-            this._ctx.fillStyle = color
+            // this._ctx.fillStyle = color
+            let lw = this._ctx.lineWidth
             this._ctx.beginPath()
-            this._ctx.moveTo(x,y)
-            let width = this._ctx.lineWidth
-            x = x - Math.floor(width/2)
-            y = y - Math.floor(width/2)
-            this._ctx.fillRect( x, y, width, width ); // adds a single pixel
+            this._ctx.moveTo(x-lw/4,y)
+            this._ctx.lineTo(x+lw/2,y)
+            this._ctx.stroke()
         }
     }
 
@@ -102,10 +106,6 @@ export class Doodler {
 
             let x = evt.offsetX, y = evt.offsetY
             this._ctx.lineTo(x,y)
-            let width = this._ctx.lineWidth
-            x = x - Math.floor(width/2)
-            y = y - Math.floor(width/2)
-            this._ctx.fillRect( x, y, width, width ); // adds a single pixel
             
             this._ctx.stroke()
         }

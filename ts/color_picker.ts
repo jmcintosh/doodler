@@ -26,7 +26,6 @@ export class ColorPicker implements iColorSource{
         // disable the context menu
         this._canvas.oncontextmenu = function(){ return false }
 
-
         this._l_slider = document.createElement("input")
         this._l_slider.setAttribute("type", "range")
         this._l_slider.min = "0"
@@ -76,7 +75,7 @@ export class ColorPicker implements iColorSource{
     init_event_listeners(){
         console.log("ColorPicker::init")
         this._canvas.addEventListener("mousedown",this.pick_color.bind(this))
-        this._l_slider.addEventListener("change",this.draw_gradient.bind(this))
+        this._l_slider.addEventListener("input",this.draw_gradient.bind(this))
     }
 
     draw_gradient(){
