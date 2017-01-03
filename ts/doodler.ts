@@ -14,11 +14,15 @@ export class Doodler {
 
     private _saved_image: string
 
+    private _draw_end_callbacks: Function[] = []
+
     constructor( id: string, parent: string, width: number, height: number, color_source: iColorSource ) {
+        
         this._color_source = color_source
 
         this._canvas = document.createElement("canvas")
         this._canvas.id = id
+        this._canvas.classList.add('doodler-canvas')
         this._canvas.width = width
         this._canvas.height = height
         document.getElementById(parent).appendChild(this._canvas)
@@ -27,11 +31,11 @@ export class Doodler {
         // disable the context menu
         this._canvas.oncontextmenu = function(){ return false }
 
-        this.start_draw_listeners()
-        this.set_line_width(4)
+        if(this._color_source){
+            this.start_draw_listeners()
+            this.set_line_width(4)
+        }
 
-        //let a = lang.clone({test: 1})
-        // console.debug(a)
     }
 
     private test_circle() {
@@ -108,7 +112,23 @@ export class Doodler {
             this._ctx.lineTo(x,y)
             
             this._ctx.stroke()
+
+            this.on_draw_end()
         }
+    }
+
+    private on_draw_end(){
+        console.log("Doodler::_on_draw_end")
+
+        for( let f of this._draw_end_callbacks){
+            f()
+        }
+    }
+
+    add_draw_end_callback(f: Function){
+        console.log("Doodler::_on_draw_end")
+
+        this._draw_end_callbacks.push(f)
     }
 
     clear_canvas(){
@@ -119,13 +139,13 @@ export class Doodler {
 
     save_image(){
         console.log("Doodler::save_canvas_blob")
-        this._saved_image = this._canvas.toDataURL('image/png')
+        return this._canvas.toDataURL('image/png')
     }
 
-    load_image(){
+    load_image(img: string){
         console.log("Doodler::load_canvas_blob")
         let image = new Image()
-        image.src = this._saved_image
+        image.src = img
         this._ctx.drawImage(image,0,0)
     }
 

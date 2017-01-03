@@ -2,17 +2,29 @@ body {
     background-color: slategrey;
 }
 
-#doodler-canvas {
-    background-color: white;
-    border: 2px solid black;
+#doodler-container {
     width: 800px;
     height: 600px;
+    position: relative;
+    background-color: white;
+    border: 2px solid black;
+}
+
+.doodler-canvas {
     position: absolute;
     left: 50%;
     top: 50%;
     margin-left: -400px;
     margin-top: -300px;
     cursor: crosshair;
+}
+
+#background{
+    z-index: 0;
+}
+
+#foreground{
+    z-index: 1;
 }
 
 #color-picker {
