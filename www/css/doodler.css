@@ -1,13 +1,15 @@
 body {
-    background-color: slategrey;
+    background-color: mediumaquamarine;
+    padding: 0;
 }
 
 #doodler-container {
     width: 800px;
     height: 600px;
-    position: relative;
+    margin: 5px;
     background-color: white;
-    border: 2px solid black;
+    border: 2px solid darkgrey;
+    z-index: 0;
 }
 
 .doodler-canvas {
@@ -20,13 +22,36 @@ body {
 }
 
 #background{
-    z-index: 0;
+    z-index: 50;
 }
 
 #foreground{
-    z-index: 1;
+    z-index: 100;
 }
 
 #color-picker {
     cursor: crosshair;
+    position: relative;
+    margin: 5px;
+    border: 2px solid darkgrey;
+}
+
+#chat-container {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 400px;
+    height: 100%;
+    background-color: palevioletred;
+}
+
+#chat-input {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    min-height: 20px;
+    max-height: 80px;
+    line-height: 18px;
+    overflow: none;
+    resize: vertical;
 }

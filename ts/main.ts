@@ -1,3 +1,5 @@
+/// <reference path="./types/socket.io-client.d.ts"/>
+
 import {Doodler} from "./doodler"
 import {ColorPicker} from "./color_picker"
 
@@ -10,9 +12,9 @@ let socket = io('http://localhost:5150')
 // event emitters
 foreground.add_draw_end_callback(function(){
     let img = foreground.save_image()
-    socket.emit('image/to_server',img)
-    foreground.clear_canvas()
     background.load_image(img)
+    foreground.clear_canvas()
+    socket.emit('image/to_server', img)
 })
 
 

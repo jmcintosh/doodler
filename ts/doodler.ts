@@ -38,12 +38,6 @@ export class Doodler {
 
     }
 
-    private test_circle() {
-        this._ctx.beginPath()
-        this._ctx.arc(95,50,40,0,2*Math.PI)
-        this._ctx.stroke()
-    } 
-
     private start_draw_listeners(){
         console.log("Doodler:start_draw_listeners")
         // this._canvas.addEventListener()
@@ -85,12 +79,12 @@ export class Doodler {
             let x = evt.offsetX, y = evt.offsetY
             let color = this._color_source.get_primary_hsl().as_string()
             this._ctx.strokeStyle = color
-            // this._ctx.fillStyle = color
             let lw = this._ctx.lineWidth
             this._ctx.beginPath()
-            this._ctx.moveTo(x-lw/4,y)
-            this._ctx.lineTo(x+lw/2,y)
-            this._ctx.stroke()
+            // @TODO: let the user just click once to add a dot
+            // this._ctx.moveTo(x-lw/4,y)
+            // this._ctx.lineTo(x+lw/2,y)
+            // this._ctx.stroke()
         }
     }
 
@@ -142,11 +136,13 @@ export class Doodler {
         return this._canvas.toDataURL('image/png')
     }
 
-    load_image(img: string){
-        console.log("Doodler::load_canvas_blob")
-        let image = new Image()
+    load_image(img: string) {
+        console.log("Doodler::load_image")
+        let image = new Image(this._canvas.width,this._canvas.height)
+        image.onload = function onImageLoad() {
+            this._ctx.drawImage(image,0,0)
+        }.bind(this)
         image.src = img
-        this._ctx.drawImage(image,0,0)
     }
 
 }

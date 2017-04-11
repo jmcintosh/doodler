@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jmcintosh/doodler#readme",
   "devDependencies": {
+    "@types/node": "^7.0.12",
     "browserify": "^13.1.0",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^1.6.0",
